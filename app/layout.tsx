@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 const fontSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--plus-jakarta-sans",
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
@@ -25,13 +25,13 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-light-200 font-sans antialiased",
+          "min-h-screen bg-dark-200 font-sans antialiased",
           fontSans.variable
         )}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
