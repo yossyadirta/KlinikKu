@@ -10,6 +10,7 @@ import CustomFormField from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { UserFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
+import { createUser } from "@/lib/actions/patient.action";
 
 export enum FormFieldType {
   INPUT = "input",
@@ -42,15 +43,17 @@ const PatientForm = () => {
     setIsLoading(true);
 
     try {
-      // const userData = {
-      //   name,
-      //   email,
-      //   phone,
-      // };
-      // const user = await createUser(userData);
-      // if (user) {
-      //   router.push(`/patients/${user.$id}/register`)
-      // }
+      const userData = {
+        name,
+        email,
+        phone,
+      };
+      const user = await createUser(userData);
+      console.log(user, "<< ni user pas submit");
+
+      if (user) {
+        router.push(`/patients/${user.$id}/register`);
+      }
     } catch (error) {
       console.log(error);
     }
