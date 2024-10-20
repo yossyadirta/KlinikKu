@@ -14,7 +14,7 @@ import { createUser } from "@/lib/actions/patient.action";
 
 export enum FormFieldType {
   INPUT = "input",
-  TEXTARE = "textarea",
+  TEXTAREA = "textarea",
   PHONE_INPUT = "phoneInput",
   CHECKBOX = "checkbox",
   DATE_PICKER = "datePicker",
@@ -49,7 +49,6 @@ const PatientForm = () => {
         phone,
       };
       const user = await createUser(userData);
-      console.log(user, "<< ni user pas submit");
 
       if (user) {
         router.push(`/patients/${user.$id}/register`);
@@ -57,21 +56,24 @@ const PatientForm = () => {
     } catch (error) {
       console.log(error);
     }
+    setIsLoading(false);
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
         <section className="mb-12 space-y-4">
-          <h1 className="header">Hi there</h1>
-          <p className="text-dark-700">Schedule your first appointment</p>
+          <h1 className="header">Selamat Datang,</h1>
+          <p className="text-dark-700">
+            Jadwalkan Janji Temu Kesehatan Pertama Anda
+          </p>
         </section>
 
         <CustomFormField
           control={form.control}
           fieldType={FormFieldType.INPUT}
           name="name"
-          label="Full Name"
+          label="Nama Lengkap"
           placeholder="John Doe"
           iconSrc="/assets/icons/user.svg"
           iconAlt="user"
@@ -89,10 +91,10 @@ const PatientForm = () => {
           control={form.control}
           fieldType={FormFieldType.PHONE_INPUT}
           name="phone"
-          label="Phone Number"
+          label="Nomor Telepon"
           placeholder="(555) 123-4567"
         />
-        <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
+        <SubmitButton isLoading={isLoading}>Daftar</SubmitButton>
       </form>
     </Form>
   );
