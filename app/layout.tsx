@@ -12,8 +12,8 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "JanjiSehat",
-  description: "A Healthcare Appointment App",
+  title: "Janji Sehat",
+  description: "Aplikasi Janji Temu Layanan Kesehatan",
 };
 
 export default function RootLayout({
