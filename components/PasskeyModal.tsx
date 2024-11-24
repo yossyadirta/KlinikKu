@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -17,12 +16,16 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { decryptKey, encryptKey } from "@/lib/utils";
+import { getPatientByEmail, login } from "@/lib/actions/patient.action";
 
-const PasskeyModal = () => {
+interface PatientFormProps {
+  userData?: { email: string | undefined };
+}
+
+const PasskeyModal: React.FC<PatientFormProps> = ({ userData }) => {
   const router = useRouter();
-  const path = usePathname();
   const [open, setOpen] = useState(true);
   const [passKey, setPassKey] = useState("");
   const [error, setError] = useState("");
@@ -34,32 +37,74 @@ const PasskeyModal = () => {
 
   useEffect(() => {
     const accessKey = encryptedKey && decryptKey(encryptedKey);
-    if (path) {
+    if (!userData?.email) {
       if (accessKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
         setOpen(false);
         router.push("/admin");
       } else {
         setOpen(true);
+        setPassKey("");
+        setError("");
       }
+    } else {
+      setOpen(true);
+      setPassKey("");
+      setError("");
     }
-  }, [encryptedKey]);
+  }, [encryptedKey, userData, router]);
 
   const closeModal = () => {
     setOpen(false);
-    router.push("/");
+    setPassKey("");
+    setError("");
   };
 
-  const validatePasskey = (
+  const validatePasskey = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
-    if (passKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
-      const encryptedKey = encryptKey(passKey);
+    if (userData?.email) {
+      const response = await login(userData.email);
 
-      localStorage.setItem("accessKey", encryptedKey);
-      setOpen(false);
+      if (response.success) {
+        if (passKey === response.passcode) {
+          const patient = await getPatientByEmail(userData.email);
+          if (patient) {
+            router.push(`/patients/${patient.userId}/new-appointment`);
+            setOpen(false);
+            setPassKey("");
+            setError("");
+          }
+        } else {
+          setError("Kode verifikasi salah. Silakan coba lagi.");
+        }
+      } else {
+        setError(response.message);
+      }
     } else {
-      setError("Kode verifikasi salah. Silahkan coba lagi.");
+      if (passKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
+        const encryptedKey = encryptKey(passKey);
+        localStorage.setItem("accessKey", encryptedKey);
+        setOpen(false);
+        router.push("/admin");
+      } else {
+        setError("Kode verifikasi salah. Silakan coba lagi.");
+      }
+    }
+  };
+
+  const handleChange = (value: string) => {
+    setPassKey(value);
+
+    if (value === "" || value.length === 0) {
+      setError("");
+      return;
+    }
+
+    if (value.length > 0 && value.length < 6) {
+      setError("Kode verifikasi harus 6 digit");
+    } else {
+      setError("");
     }
   };
 
@@ -68,7 +113,7 @@ const PasskeyModal = () => {
       <AlertDialogContent className="shad-alert-dialog">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-start justify-between">
-            Verifikasi Akses Admin
+            {userData?.email ? "Verifikasi Login" : "Verifikasi Akses Admin"}
             <Image
               src="/assets/icons/close.svg"
               width={20}
@@ -79,14 +124,16 @@ const PasskeyModal = () => {
             />
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Untuk mengakses halaman Admin, tolong masukkan kode verifikasi
+            {userData?.email
+              ? `Masukkan kode verifikasi yang telah dikirim ke ${userData.email}`
+              : "Untuk mengakses halaman Admin, tolong masukkan kode verifikasi"}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div>
           <InputOTP
             maxLength={6}
             value={passKey}
-            onChange={(value) => setPassKey(value)}
+            onChange={(value) => handleChange(value)}
           >
             <InputOTPGroup className="shad-otp">
               <InputOTPSlot className="shad-otp-slot" index={0} />

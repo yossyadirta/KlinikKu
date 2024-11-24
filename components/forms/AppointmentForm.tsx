@@ -65,7 +65,7 @@ const AppointmentForm = ({
       default:
         break;
     }
-    console.log({ type, patientId });
+
     try {
       if (type === "create" && patientId) {
         const appointmentData = {

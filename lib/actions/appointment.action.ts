@@ -5,8 +5,9 @@ import {
   APPOINTMENT_COLLECTION_ID,
   DATABASE_ID,
   databases,
+  messaging,
 } from "../appwrite.config";
-import { parseStringify } from "../utils";
+import { parseStringify, formatDateTime } from "../utils";
 import { Appointment } from "./appwrite.types";
 import { revalidatePath } from "next/cache";
 
@@ -102,10 +103,51 @@ export const updateAppointment = async ({
       throw new Error("Appointment not found");
     }
 
-    // sms
+    const subject =
+      type === "schedule"
+        ? `Jadwal Janji Temu Tanggal ${
+            formatDateTime(appointment.schedule!).dateTime
+          } Dengan ${appointment.primaryPhysician}.`
+        : `Pembatalan Janji Temu Tanggal ${
+            formatDateTime(appointment.schedule!).dateTime
+          } Dengan ${appointment.primaryPhysician}.`;
+
+    const message =
+      type === "schedule"
+        ? `Janji temu kamu melalui Janji Sehat telah dijadwalkan pada tanggal ${
+            formatDateTime(appointment.schedule!).dateTime
+          } dengan ${appointment.primaryPhysician}.`
+        : `Kami mohon maaf untuk menginformasikan bahwa janji temu Anda telah dibatalkan karena alasan berikut: ${appointment.cancellationReason}.`;
+    await sendEmail(userId, subject, message);
 
     revalidatePath("/admin");
     return parseStringify(updatedAppointment);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const sendEmail = async (
+  userId: string,
+  subject: string,
+  content: string
+) => {
+  try {
+    const message = await messaging.createEmail(
+      ID.unique(),
+      subject,
+      content,
+      [], // topics (optional)
+      [userId], // users (optional)
+      [], // targets (optional)
+      [], // cc (optional)
+      [], // bcc (optional)
+      [], // bcc (optional)
+      false, // draft (optional)
+      false
+    );
+
+    return parseStringify(message);
   } catch (error) {
     console.log(error);
   }

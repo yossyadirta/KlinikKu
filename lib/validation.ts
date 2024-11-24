@@ -14,6 +14,10 @@ export const UserFormValidation = z.object({
     ),
 });
 
+export const UserLoginFormValidation = z.object({
+  email: z.string().email("Alamat email tidak valid"),
+});
+
 export const PatientFormValidation = z.object({
   name: z
     .string()
