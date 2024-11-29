@@ -29,7 +29,7 @@ export default async function NewAppointment({
       </section>
 
       <Image
-        src="/assets/images/appointment-img.png"
+        src="/assets/images/appointment-img.jpg"
         height={1000}
         width={1000}
         alt="appointment-bg"
