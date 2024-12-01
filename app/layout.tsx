@@ -14,6 +14,9 @@ const fontSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Janji Sehat",
   description: "Aplikasi Janji Temu Layanan Kesehatan",
+  icons: {
+    icon: "/assets/icons/logo-icon.svg",
+  },
 };
 
 export default function RootLayout({
